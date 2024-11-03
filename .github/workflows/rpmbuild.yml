@@ -66,4 +66,4 @@ jobs:
             RPM package of materialgram
           files: "/github/home/rpmbuild/RPMS/x86_64/*.rpm"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
