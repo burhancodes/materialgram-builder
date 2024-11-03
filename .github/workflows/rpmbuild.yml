@@ -1,0 +1,69 @@
+name: Materialgram RPM Builder
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: fedora:41
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          dnf install -y rpm-build rpmdevtools curl tar jq
+
+      - name: Prepare RPM build environment
+        run: |
+          # Set up the rpmbuild directories
+          rpmdev-setuptree
+          # Copy .spec file to the SPECS directory
+          cp *.spec ~/rpmbuild/SPECS/
+
+
+      - name: Download latest release tarball
+        env:
+          REPO: "kukuruzka165/materialgram"
+        run: |
+          DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" \
+            | jq -r '.assets[] | select(.name | endswith(".tar.gz")) | .browser_download_url')
+
+          curl -L "$DOWNLOAD_URL" -o ~/rpmbuild/SOURCES/materialgram-latest.tar.gz
+          tar -xzf ~/rpmbuild/SOURCES/materialgram-latest.tar.gz -C ~/rpmbuild/SOURCES
+          rm -rf ~/rpmbuild/SOURCES/materialgram-latest.tar.gz
+
+      - name: List extracted files
+        run: ls -R ~/rpmbuild/SOURCES/
+
+      - name: Build RPM
+        run: |
+          rpmbuild -ba ~/rpmbuild/SPECS/*.spec
+
+      - name: Verify RPM Output
+        run: ls -R ~/rpmbuild/RPMS/
+
+      - name: Upload RPM as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-rpm
+          path: ~/rpmbuild/RPMS/
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2.0.8
+        with:
+          tag_name: ${{ env.REPO_NAME }}${{ github.run_number }}
+          name: Release ${{ env.REPO_NAME }}${{ github.run_number }}
+          body: |
+            RPM package of materialgram
+          files: "/github/home/rpmbuild/RPMS/x86_64/*.rpm"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
