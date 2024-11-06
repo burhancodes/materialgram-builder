@@ -28,14 +28,9 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
-      - name: Import GPG Key
+      - name: Get Latest RPM, Setup GPG, Sign and Update Repository
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
-
-      - name: Get Latest RPM, Sign and Update Repository
-        env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
@@ -47,11 +42,11 @@ jobs:
           mv "$latest_rpm" ../materialgram-repo/x86_64/
           cd ../materialgram-repo
           createrepo .
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
+          echo "%_signature gpg" | tee -a /etc/rpm/macros
+          echo "%_gpg_name ${{ secrets.GPG_KEY_ID }}" | tee -a /etc/rpm/macros
           gpg --export -a "$GPG_KEY_ID" > materialgram-public.key
-          gpg --batch --yes --pinentry-mode loopback \
-              --passphrase "$GPG_PASSPHRASE" \
-              --detach-sign --armor \
-              --default-key "$GPG_KEY_ID" x86_64/*.rpm
+          rpm --addsign x86_64/*.rpm
           gpg --batch --yes --pinentry-mode loopback \
               --passphrase "$GPG_PASSPHRASE" \
               --detach-sign --armor \
