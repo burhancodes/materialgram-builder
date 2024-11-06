@@ -4,10 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  runs-on: ubuntu-latest
-  
+  build:
+    runs-on: ubuntu-latest
+
     container:
-       image: fedora:41
+      image: fedora:41
       
     steps:
       - name: Checkout Repo
