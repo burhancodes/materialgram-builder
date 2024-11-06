@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y git createrepo curl tar jq
+          dnf install -y git createrepo curl tar jq gpg
 
       - name: Clone repo
         id: get
@@ -29,7 +29,13 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
-      - name: Get Latest RPM, Update repodata and Push Changes
+      - name: Import GPG Key
+        env:
+          GPG_PRIV: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIV" | gpg --batch --yes --trust-model always --import
+
+      - name: Get Latest RPM, Update repodata, Sign Metadata, and Push Changes
         id: get_rpm
         run: |
           mkdir materialgram-builder
@@ -40,6 +46,7 @@ jobs:
           mv "$latest_rpm" ../materialgram-repo/x86_64/
           cd ../materialgram-repo
           createrepo .
+          gpg --batch --yes --detach-sign --armor --passphrase "${{ secrets.GPG_PASSPHRASE }}" repodata/repomd.xml
           git add .
-          git commit -m "Update RPM and repodata"
+          git commit -m "Update RPM, repodata, and sign metadata"
           git push
