@@ -38,7 +38,8 @@ cp -a %{_sourcedir}/usr/share/* %{buildroot}/usr/share/
 
 %postun
 if [ "$1" = 0 ]; then
-  rm -rf $HOME/.local/share/materialgram
+  USER=$(whoami)
+  rm -rf /home/$USER/.local/share/materialgram
 fi
 
 %changelog
