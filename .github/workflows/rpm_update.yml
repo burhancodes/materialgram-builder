@@ -30,6 +30,7 @@ jobs:
 
       - name: Get Latest RPM, Setup GPG, Sign and Update Repository
         env:
+          GPG_TTY: /dev/tty
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
