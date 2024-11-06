@@ -1,19 +1,13 @@
 name: Update Materialgram Repo
 
 on:
-  workflow_run:
-    workflows: ["Materialgram RPM Builder"]
-    types:
-      - completed
   workflow_dispatch:
 
 jobs:
-  update:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    
+  runs-on: ubuntu-latest
+  
     container:
-      image: fedora:41
+       image: fedora:41
       
     steps:
       - name: Checkout Repo
