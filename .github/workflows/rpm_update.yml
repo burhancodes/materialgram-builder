@@ -24,6 +24,7 @@ jobs:
 
       - name: Clone repo
         run: |
+          export GPG_TTY=$(tty)
           git clone https://${{ secrets.PAT }}@github.com/burhancodes/materialgram-repo.git
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
@@ -46,10 +47,12 @@ jobs:
           cd ../materialgram-repo
           createrepo .
           echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
-          echo "%_signature gpg" | tee -a /etc/rpm/macros
-          echo "%_gpg_name ${{ secrets.GPG_KEY_ID }}" | tee -a /etc/rpm/macros
+          echo "%_signature gpg" >> ~/.rpmmacros
+          echo "%_gpg_name ${GPG_KEY_ID}" >> ~/.rpmmacros
+          echo "%__gpg /usr/bin/gpg" >> ~/.rpmmacros
+          echo "%__gpg_sign_cmd %{__gpg} gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor --no-tty --yes -u %{_gpg_name} -o %{__signature_filename} %{__plaintext_filename}" >> ~/.rpmmacros
           gpg --export -a "$GPG_KEY_ID" > materialgram-public.key
-          rpm --addsign x86_64/*.rpm
+          echo "$GPG_PASSPHRASE" | rpmsign --addsign x86_64/*.rpm
           gpg --batch --yes --pinentry-mode loopback \
               --passphrase "$GPG_PASSPHRASE" \
               --detach-sign --armor \
