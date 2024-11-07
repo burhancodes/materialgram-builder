@@ -1,6 +1,6 @@
 Name:           materialgram
 Version:        5.7.0.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Telegram Desktop fork with material icons and some improvements
 
 License:        GPLv3
@@ -37,10 +37,7 @@ cp -a %{_sourcedir}/usr/share/* %{buildroot}/usr/share/
 /usr/share/metainfo/*
 
 %preun
-if [ "$1" = 0 ]; then
-  # Only stop running instances if the package is being removed (not upgraded)
   pkill -f '/usr/bin/materialgram' || true
-fi
 
 %postun
 if [ "$1" = 0 ]; then
