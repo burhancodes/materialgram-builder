@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y git createrepo curl tar jq gpg rpm-sign
+          dnf install -y git createrepo curl tar jq gpg rpm-sign gpg-preset-passphrase
 
       - name: Clone repo
         run: |
@@ -41,6 +41,15 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           trust_level: 5
+          
+      - name: Configure .rpmmacros for RPM signing
+        env:
+            KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+           echo "%_signature gpg" >> ~/.rpmmacros
+           echo "%_gpg_path /github/home/.gnupg" >> ~/.rpmmacros
+           echo "%_gpg_name ${KEY_ID}" >> ~/.rpmmacros
+           echo "%_gpgbin /usr/bin/gpg" >> ~/.rpmmacros
 
       - name: Get Latest RPM, Sign and Update Repository
         env:
