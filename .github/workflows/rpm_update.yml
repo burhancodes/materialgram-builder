@@ -20,13 +20,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y git createrepo curl tar jq gpg rpm-sign gnupg-preset-passphrase
+          dnf install -y git createrepo curl tar jq gpg rpm-sign gpg-preset-passphrase
 
       - name: Clone repo
         run: |
           git clone https://${{ secrets.PAT }}@github.com/burhancodes/materialgram-repo.git
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
+          
+      - name: Set up GPG for signing
+        run: |
+          mkdir -p ~/.gnupg
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+        shell: bash
           
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6.2.0
@@ -49,16 +56,12 @@ jobs:
           mkdir -p ../materialgram-repo/x86_64
           mv "$latest_rpm" ../materialgram-repo/x86_64/
           cd ../materialgram-repo
-          echo "$GPG_PASSPHRASE" | gpg-preset-passphrase --preset --passphrase-fd 0 "KEY_ID"
-          
-          rpm --addsign x86_64/*.rpm
-
           createrepo .
-          gpg --batch --yes --detach-sign --armor --passphrase "$GPG_PASSPHRASE" \
-              -u "$KEY_ID" repodata/repomd.xml
-          
-          gpg-preset-passphrase --forget "$GPG_KEY_ID"
-
+          cd ..
+          curl -sS https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/sign.sh
+          chmod +x ./sign.sh
+          ./sign.sh materialgram-repo/x86_64/*.rpm materialgram-repo/repodata/repomd.xml
+          cd materialgram-repo
           git add .
           git commit -m "Update RPM, repodata, and sign metadata"
           git push
