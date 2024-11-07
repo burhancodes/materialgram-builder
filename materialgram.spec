@@ -36,12 +36,27 @@ cp -a %{_sourcedir}/usr/share/* %{buildroot}/usr/share/
 %dir /usr/share/metainfo
 /usr/share/metainfo/*
 
+%preun
+if [ "$1" = 0 ]; then
+  # Only stop running instances if the package is being removed (not upgraded)
+  pkill -f '/usr/bin/materialgram' || true
+fi
+
 %postun
 if [ "$1" = 0 ]; then
-  USER=$(whoami)
-  rm -rf /home/$USER/.local/share/materialgram
+  # Only remove user data if the package is fully uninstalled (not upgraded)
+  for userdir in /home/*; do
+    if [ -d "$userdir/.local/share/materialgram" ]; then
+      rm -rf "$userdir/.local/share/materialgram"
+    fi
+  done
+
+  # Also check the current user's home, if $HOME is set
+  if [ -n "$HOME" ] && [ -d "$HOME/.local/share/materialgram" ]; then
+    rm -rf "$HOME/.local/share/materialgram"
+  fi
 fi
 
 %changelog
-* Sat Nov 06 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-5
+* Thu Nov 07 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-6
 - Release RPM package
