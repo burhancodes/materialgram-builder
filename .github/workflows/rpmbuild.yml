@@ -45,7 +45,7 @@ jobs:
 
       - name: Build RPM
         run: |
-          rpmbuild -ba ~/rpmbuild/SPECS/*.spec
+          rpmbuild --define "buildhost Fedora" -ba ~/rpmbuild/SPECS/*.spec
 
       - name: Verify RPM Output
         run: ls -R ~/rpmbuild/RPMS/
