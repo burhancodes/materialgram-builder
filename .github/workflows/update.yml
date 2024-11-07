@@ -26,8 +26,8 @@ jobs:
         id: get
         run: |
           git clone https://${{ secrets.PAT }}@github.com/burhancodes/materialgram-repo.git
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config --global user.name "itsnotsos"
+          git config --global user.email "179767921+itsnotsos@users.noreply.github.com"
 
       - name: Get Latest RPM, Update repodata and Push Changes
         id: get_rpm
