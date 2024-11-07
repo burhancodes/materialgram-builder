@@ -1,6 +1,6 @@
 Name:           materialgram
 Version:        5.7.0.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Telegram Desktop fork with material icons and some improvements
 
 License:        GPLv3
@@ -55,5 +55,5 @@ if [ "$1" = 0 ]; then
 fi
 
 %changelog
-* Thu Nov 07 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-7
+* Thu Nov 07 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-8
 - Release RPM package
