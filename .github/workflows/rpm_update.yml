@@ -33,6 +33,7 @@ jobs:
           mkdir -p ~/.gnupg
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
+          chmod 700 ~/.gnupg
         shell: bash
           
       - name: Import GPG key
