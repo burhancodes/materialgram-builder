@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y git createrepo curl tar jq gpg rpm-sign gpg-preset-passphrase
+          dnf install -y git createrepo curl tar jq gpg rpm-sign
 
       - name: Clone repo
         run: |
