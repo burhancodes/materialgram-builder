@@ -51,11 +51,9 @@ jobs:
           gpg --batch --yes --pinentry-mode loopback \
               --passphrase "$GPG_PASSPHRASE" \
               --detach-sign --armor \
-              --default-key "$GPG_KEY_ID" x86_64/*.rpm
-          gpg --batch --yes --pinentry-mode loopback \
-              --passphrase "$GPG_PASSPHRASE" \
-              --detach-sign --armor \
               --default-key "$GPG_KEY_ID" repodata/repomd.xml
+          curl -o ~/.rpmmacros https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/rpmmacros
+          rpm --addsign x86_64/*.rpm
           git add .
           git commit -m "Update RPM, repodata, and sign metadata"
           git push
