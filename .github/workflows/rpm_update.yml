@@ -38,6 +38,7 @@ jobs:
 
       - name: Get Latest RPM, Sign and Update Repository
         env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
@@ -56,6 +57,7 @@ jobs:
               --passphrase "$GPG_PASSPHRASE" \
               --detach-sign --armor \
               --default-key "$GPG_KEY_ID" repodata/repomd.xml
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
           curl -o ~/.rpmmacros https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/rpmmacros
           echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
           rpm --addsign x86_64/*.rpm
