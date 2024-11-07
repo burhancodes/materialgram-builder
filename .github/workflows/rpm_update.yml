@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          dnf install -y git createrepo curl tar jq gpg rpm-sign
+          dnf install -y git createrepo curl tar jq gpg rpm-sign gpg-preset-passphrase
 
       - name: Clone repo
         run: |
@@ -46,14 +46,18 @@ jobs:
           download_url=$(curl -s https://api.github.com/repos/burhancodes/materialgram-builder/releases/latest | jq -r '.assets[] | select(.name == "'"$latest_rpm"'") | .browser_download_url')
           curl -L -o "$latest_rpm" "$download_url"
           rm -rf ../materialgram-repo
-          mkdir -p ../materialgram-repo/x86_64/
+          mkdir -p ../materialgram-repo/x86_64
           mv "$latest_rpm" ../materialgram-repo/x86_64/
           cd ../materialgram-repo
-          rpm --define "_gpg_name $KEY_ID" --addsign x86_64/*.rpm
+          echo "$GPG_PASSPHRASE" | gpg-preset-passphrase --preset --passphrase-fd 0 "KEY_ID"
+          
+          rpm --addsign x86_64/*.rpm
 
           createrepo .
           gpg --batch --yes --detach-sign --armor --passphrase "$GPG_PASSPHRASE" \
               -u "$KEY_ID" repodata/repomd.xml
+          
+          gpg-preset-passphrase --forget "$GPG_KEY_ID"
 
           git add .
           git commit -m "Update RPM, repodata, and sign metadata"
