@@ -30,15 +30,15 @@ jobs:
 
       - name: Import GPG Key
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
+          git clone https://${{ secrets.PAT }}@github.com/burhancodes/private-keys.git ~/private-keys
+          gpg --batch --allow-secret-key-import --import ~/private-keys/priv.asc
+          curl -o ~/.rpmmacros https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/rpmmacros
           echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
 
       - name: Get Latest RPM, Sign and Update Repository
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
@@ -53,14 +53,11 @@ jobs:
           cd ../materialgram-repo
           createrepo .
           gpg --export -a "$GPG_KEY_ID" > materialgram-public.key
-          gpg --batch --yes --pinentry-mode loopback \
-              --passphrase "$GPG_PASSPHRASE" \
-              --detach-sign --armor \
-              --default-key "$GPG_KEY_ID" repodata/repomd.xml
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --trust-model always --import
-          curl -o ~/.rpmmacros https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/rpmmacros
-          echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
           rpm --addsign x86_64/*.rpm
+          gpg --detach-sign --armor repodata/repomd.xml
+          expect "Enter passphrase: "
+          send -- "$GPG_PASSPHRASE\r"
+          expect eof
           git add .
           git commit -m "Update RPM, repodata, and sign metadata"
           git push
