@@ -28,20 +28,15 @@ jobs:
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
-      - name: Import GPG Key
+      - name: Get Latest RPM, Sign and Update Repository
         env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           git clone https://${{ secrets.PAT }}@github.com/burhancodes/private-keys.git ~/private-keys
           gpg --batch --allow-secret-key-import --import ~/private-keys/priv.asc
           curl -o ~/.rpmmacros https://raw.githubusercontent.com/burhancodes/materialgram-builder/refs/heads/main/rpmmacros
           echo "$GPG_PASSPHRASE" > /tmp/gpg-passphrase
-
-      - name: Get Latest RPM, Sign and Update Repository
-        env:
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
           mkdir materialgram-builder
           cd materialgram-builder
           latest_rpm=$(curl -s https://api.github.com/repos/burhancodes/materialgram-builder/releases/latest | jq -r '.assets[] | select(.name | endswith(".rpm")) | .name')
