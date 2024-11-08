@@ -39,6 +39,18 @@ jobs:
           curl -L -o "$latest_rpm" "$download_url"
           mv "$latest_rpm" ../materialgram-repo/x86_64/
           cd ../materialgram-repo
+          rpm_count=$(ls ./x86_64/*.rpm | wc -l)
+            if [ "$rpm_count" -gt 1 ]; then
+               echo "More than 1 RPM files found, performing cleanup."
+               latest_rpm=$(ls ./x86_64/*.rpm | sort -V | tail -n 1)
+               for rpm in ./x86_64/*.rpm; do
+                 if [[ "$rpm" != "$latest_rpm" ]]; then
+                   rm -v "$rpm"
+                 fi
+               done
+            else
+              echo "less than 2 RPM found, skipping..."
+            fi
           createrepo .
           git add .
           git commit -m "Update RPM and repodata"
