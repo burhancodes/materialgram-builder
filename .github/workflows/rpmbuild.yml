@@ -2,8 +2,9 @@ name: Materialgram RPM Builder
 
 on:
   push:
-    paths:
-      - 'materialgram.spec'
+    branches:
+       - main
+       
   workflow_dispatch:
 
 jobs:
