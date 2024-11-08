@@ -1,6 +1,6 @@
 Name:           materialgram
 Version:        5.7.0.1
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        Telegram Desktop fork with material icons and some improvements
 Vendor:         burhancodes
 Group:          Applications/Internet
@@ -45,21 +45,18 @@ cp -a %{_sourcedir}/usr/share/* %{buildroot}/usr/share/
 
 %postun
 if [ "$1" = 0 ]; then
-  # Only remove user data if the package is fully uninstalled (not upgraded)
-  for userdir in /home/*; do
-    if [ -d "$userdir/.local/share/materialgram" ]; then
-      rm -rf "$userdir/.local/share/materialgram"
-    fi
-  done
+  # Get the current user's home directory
+  USER_HOME=$(getent passwd "$USER" | cut -d: -f6)
 
-  # Also check the current user's home, if $HOME is set
-  if [ -n "$HOME" ] && [ -d "$HOME/.local/share/materialgram" ]; then
-    rm -rf "$HOME/.local/share/materialgram"
+  # Remove user data only if the package is fully uninstalled (not upgraded)
+  if [ -n "$USER_HOME" ] && [ -d "$USER_HOME/.local/share/materialgram" ]; then
+    rm -rf "$USER_HOME/.local/share/materialgram"
   fi
 fi
 
 %changelog
-* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-10
+* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-11
+- Update postun to delete appdata for the current user only
 - Populate some missing information about the package
 
 * Thu Nov 07 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-9
