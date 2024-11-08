@@ -1,6 +1,6 @@
 Name:           materialgram
 Version:        5.7.0.1
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        Telegram Desktop fork with material icons and some improvements
 Vendor:         burhancodes
 Group:          Applications/Internet
@@ -11,7 +11,7 @@ URL:            https://github.com/kukuruzka165/materialgram
 %description
 Telegram Desktop fork with Material Design and other improvements, which is based on the Telegram API and the MTProto secure protocol.
 
-Author: kukuruzka  <kukuruzka165@github.com>
+Author:         kukuruzka  <kukuruzka165@github.com>
 
 %prep
 cd %{_sourcedir}/
@@ -55,7 +55,7 @@ if [ "$1" = 0 ]; then
 fi
 
 %changelog
-* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-11
+* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-12
 - Update postun to delete appdata for the current user only
 - Populate some missing information about the package
 
