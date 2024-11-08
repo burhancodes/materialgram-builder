@@ -1,6 +1,6 @@
 Name:           materialgram
 Version:        5.7.0.1
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        Telegram Desktop fork with material icons and some improvements
 Vendor:         burhancodes
 Group:          Applications/Internet
@@ -55,7 +55,7 @@ if [ "$1" = 0 ]; then
 fi
 
 %changelog
-* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-12
+* Fri Nov 08 2024 burhanverse <burhanverse@proton.me> - 5.7.0.1-13
 - Update postun to delete appdata for the current user only
 - Populate some missing information about the package
 
